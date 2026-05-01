@@ -1,0 +1,1028 @@
+{
+  "name": "SemanticModel",
+  "compatibilityLevel": 1200,
+  "model": {
+    "culture": "en-US",
+    "dataSources": [
+      {
+        "name": "SqlServer DESKTOP-979JVN0ERIKASERVER SouthAsiaMart_DW",
+        "connectionString": "Provider=SQLNCLI11;Data Source=DESKTOP-979JVN0\\ERIKASERVER;Initial Catalog=SouthAsiaMart_DW;Integrated Security=SSPI;Persist Security Info=false",
+        "impersonationMode": "impersonateAccount",
+        "account": "DESKTOP-979JVN0\\eerii",
+        "annotations": [
+          {
+            "name": "ConnectionEditUISource",
+            "value": "SqlServer"
+          }
+        ]
+      }
+    ],
+    "tables": [
+      {
+        "name": "customers",
+        "columns": [
+          {
+            "name": "customer_key",
+            "dataType": "int64",
+            "sourceColumn": "customer_key",
+            "sourceProviderType": "Integer"
+          },
+          {
+            "name": "customer_id",
+            "dataType": "string",
+            "sourceColumn": "customer_id",
+            "sourceProviderType": "Char"
+          },
+          {
+            "name": "customer_name",
+            "dataType": "string",
+            "sourceColumn": "customer_name",
+            "sourceProviderType": "Char"
+          },
+          {
+            "name": "email",
+            "dataType": "string",
+            "sourceColumn": "email",
+            "sourceProviderType": "Char"
+          },
+          {
+            "name": "city",
+            "dataType": "string",
+            "sourceColumn": "city",
+            "sourceProviderType": "Char"
+          },
+          {
+            "name": "state_province",
+            "dataType": "string",
+            "sourceColumn": "state_province",
+            "sourceProviderType": "Char"
+          },
+          {
+            "name": "country",
+            "dataType": "string",
+            "sourceColumn": "country",
+            "sourceProviderType": "Char"
+          },
+          {
+            "name": "customer_segment",
+            "dataType": "string",
+            "sourceColumn": "customer_segment",
+            "sourceProviderType": "Char"
+          },
+          {
+            "name": "registration_date",
+            "dataType": "dateTime",
+            "sourceColumn": "registration_date",
+            "formatString": "General Date",
+            "sourceProviderType": "DBDate"
+          },
+          {
+            "name": "age_group",
+            "dataType": "string",
+            "sourceColumn": "age_group",
+            "sourceProviderType": "Char"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "customers",
+            "dataView": "full",
+            "source": {
+              "type": "query",
+              "query": " \t\t\t\tSELECT [dim].[customers].*   FROM [dim].[customers] ",
+              "dataSource": "SqlServer DESKTOP-979JVN0ERIKASERVER SouthAsiaMart_DW"
+            }
+          }
+        ],
+        "measures": [
+          {
+            "name": "Total Customers",
+            "expression": [
+              " ",
+              "DISTINCTCOUNT(customers[customer_id])"
+            ]
+          },
+          {
+            "name": "Repeated Customer Revenue",
+            "expression": [
+              " ",
+              "CALCULATE(",
+              "    [Total Revenue],",
+              "    FILTER(",
+              "        customers,",
+              "        CALCULATE(DISTINCTCOUNT(order_items[order_id])) > 1",
+              "    )",
+              ")"
+            ],
+            "formatString": "\"₹\" #,0.00;-\"₹\" #,0.00;\"₹\" #,0.00",
+            "annotations": [
+              {
+                "name": "Format",
+                "value": "<Format Format=\"Currency\" Accuracy=\"2\"><Currency LCID=\"2145\" DisplayName=\"₹ Nepali (India)\" Symbol=\"₹\" PositivePattern=\"2\" NegativePattern=\"9\" /></Format>"
+              }
+            ]
+          },
+          {
+            "name": "New Customer Revenue",
+            "expression": [
+              " ",
+              "CALCULATE(",
+              "    [Total Revenue],",
+              "    FILTER(",
+              "        customers,",
+              "        CALCULATE(DISTINCTCOUNT(order_items[order_id])) = 1",
+              "    )",
+              ")"
+            ],
+            "formatString": "\"₹\" #,0.00;-\"₹\" #,0.00;\"₹\" #,0.00",
+            "annotations": [
+              {
+                "name": "Format",
+                "value": "<Format Format=\"Currency\" Accuracy=\"2\"><Currency LCID=\"2145\" DisplayName=\"₹ Nepali (India)\" Symbol=\"₹\" PositivePattern=\"2\" NegativePattern=\"9\" /></Format>"
+              }
+            ]
+          },
+          {
+            "name": "High Value Customer Revenue %",
+            "expression": [
+              " ",
+              "DIVIDE(",
+              "    CALCULATE(",
+              "        [Total Revenue],",
+              "        customers[customer_segment] IN {\"Premium\", \"VIP\"}",
+              "    ),",
+              "    CALCULATE([Total Revenue], ALL(customers[customer_segment]))",
+              ")"
+            ]
+          },
+          {
+            "name": "Repeat Purchase Rate",
+            "expression": [
+              " ",
+              "DIVIDE(",
+              "    CALCULATE(",
+              "        DISTINCTCOUNT(order_items[customer_key]),",
+              "        FILTER(",
+              "            customers,",
+              "            CALCULATE(DISTINCTCOUNT(order_items[order_id])) > 1",
+              "        )",
+              "    ),",
+              "    [Total Customers]",
+              ")"
+            ]
+          }
+        ],
+        "hierarchies": [
+          {
+            "name": "Customer Hierarchy",
+            "levels": [
+              {
+                "name": "customer_segment",
+                "ordinal": 0,
+                "column": "customer_segment"
+              },
+              {
+                "name": "age_group",
+                "ordinal": 1,
+                "column": "age_group"
+              },
+              {
+                "name": "customer_name",
+                "ordinal": 2,
+                "column": "customer_name"
+              }
+            ]
+          }
+        ],
+        "annotations": [
+          {
+            "name": "_TM_ExtProp_QueryDefinition",
+            "value": " \t\t\t\tSELECT [dim].[customers].*   FROM [dim].[customers] "
+          },
+          {
+            "name": "_TM_ExtProp_DbTableName",
+            "value": "customers"
+          },
+          {
+            "name": "_TM_ExtProp_DbSchemaName",
+            "value": "dim"
+          }
+        ]
+      },
+      {
+        "name": "dates",
+        "dataCategory": "Time",
+        "columns": [
+          {
+            "name": "date_id",
+            "dataType": "int64",
+            "sourceColumn": "date_id",
+            "sourceProviderType": "Integer"
+          },
+          {
+            "name": "full_date",
+            "dataType": "dateTime",
+            "isKey": true,
+            "sourceColumn": "full_date",
+            "formatString": "General Date",
+            "sourceProviderType": "DBDate"
+          },
+          {
+            "name": "day_of_week",
+            "dataType": "string",
+            "sourceColumn": "day_of_week",
+            "sourceProviderType": "Char"
+          },
+          {
+            "name": "day_number",
+            "dataType": "int64",
+            "sourceColumn": "day_number",
+            "sourceProviderType": "Integer"
+          },
+          {
+            "name": "month_number",
+            "dataType": "int64",
+            "sourceColumn": "month_number",
+            "sourceProviderType": "Integer"
+          },
+          {
+            "name": "month_name",
+            "dataType": "string",
+            "sourceColumn": "month_name",
+            "sourceProviderType": "Char"
+          },
+          {
+            "name": "quarter",
+            "dataType": "string",
+            "sourceColumn": "quarter",
+            "sourceProviderType": "Char"
+          },
+          {
+            "name": "year",
+            "dataType": "int64",
+            "sourceColumn": "year",
+            "sourceProviderType": "Integer"
+          },
+          {
+            "name": "is_weekend",
+            "dataType": "boolean",
+            "sourceColumn": "is_weekend",
+            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\"",
+            "sourceProviderType": "Boolean"
+          },
+          {
+            "name": "is_np_holiday",
+            "dataType": "boolean",
+            "sourceColumn": "is_np_holiday",
+            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\"",
+            "sourceProviderType": "Boolean"
+          },
+          {
+            "type": "calculated",
+            "name": "BS Year",
+            "dataType": "int64",
+            "isDataTypeInferred": true,
+            "expression": " [year] + 56"
+          },
+          {
+            "type": "calculated",
+            "name": "Holiday Type",
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "expression": " IF(dates[is_np_holiday] = TRUE(), \"Holiday\", \"Non-Holiday\")"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "dates",
+            "dataView": "full",
+            "source": {
+              "type": "query",
+              "query": " \t\t\t\tSELECT [dim].[dates].*   FROM [dim].[dates] ",
+              "dataSource": "SqlServer DESKTOP-979JVN0ERIKASERVER SouthAsiaMart_DW"
+            }
+          }
+        ],
+        "hierarchies": [
+          {
+            "name": "Date Hierarchy",
+            "levels": [
+              {
+                "name": "year",
+                "ordinal": 0,
+                "column": "year"
+              },
+              {
+                "name": "quarter",
+                "ordinal": 1,
+                "column": "quarter"
+              },
+              {
+                "name": "month_name",
+                "ordinal": 2,
+                "column": "month_name"
+              },
+              {
+                "name": "day_number",
+                "ordinal": 3,
+                "column": "day_number"
+              }
+            ]
+          }
+        ],
+        "annotations": [
+          {
+            "name": "_TM_ExtProp_QueryDefinition",
+            "value": " \t\t\t\tSELECT [dim].[dates].*   FROM [dim].[dates] "
+          },
+          {
+            "name": "_TM_ExtProp_DbTableName",
+            "value": "dates"
+          },
+          {
+            "name": "_TM_ExtProp_DbSchemaName",
+            "value": "dim"
+          }
+        ]
+      },
+      {
+        "name": "order_details",
+        "columns": [
+          {
+            "name": "order_details_key",
+            "dataType": "int64",
+            "sourceColumn": "order_details_key",
+            "sourceProviderType": "Integer"
+          },
+          {
+            "name": "order_status",
+            "dataType": "string",
+            "sourceColumn": "order_status",
+            "sourceProviderType": "Char"
+          },
+          {
+            "name": "payment_method",
+            "dataType": "string",
+            "sourceColumn": "payment_method",
+            "sourceProviderType": "Char"
+          },
+          {
+            "name": "shipping_city",
+            "dataType": "string",
+            "sourceColumn": "shipping_city",
+            "sourceProviderType": "Char"
+          },
+          {
+            "name": "shipping_country",
+            "dataType": "string",
+            "sourceColumn": "shipping_country",
+            "sourceProviderType": "Char"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "order_details",
+            "dataView": "full",
+            "source": {
+              "type": "query",
+              "query": " \t\t\t\tSELECT [dim].[order_details].*   FROM [dim].[order_details] ",
+              "dataSource": "SqlServer DESKTOP-979JVN0ERIKASERVER SouthAsiaMart_DW"
+            }
+          }
+        ],
+        "annotations": [
+          {
+            "name": "_TM_ExtProp_QueryDefinition",
+            "value": " \t\t\t\tSELECT [dim].[order_details].*   FROM [dim].[order_details] "
+          },
+          {
+            "name": "_TM_ExtProp_DbTableName",
+            "value": "order_details"
+          },
+          {
+            "name": "_TM_ExtProp_DbSchemaName",
+            "value": "dim"
+          }
+        ]
+      },
+      {
+        "name": "products",
+        "columns": [
+          {
+            "name": "product_key",
+            "dataType": "int64",
+            "sourceColumn": "product_key",
+            "sourceProviderType": "Integer"
+          },
+          {
+            "name": "product_id",
+            "dataType": "string",
+            "sourceColumn": "product_id",
+            "sourceProviderType": "Char"
+          },
+          {
+            "name": "product_name",
+            "dataType": "string",
+            "sourceColumn": "product_name",
+            "sourceProviderType": "Char"
+          },
+          {
+            "name": "category",
+            "dataType": "string",
+            "sourceColumn": "category",
+            "sourceProviderType": "Char"
+          },
+          {
+            "name": "subcategory",
+            "dataType": "string",
+            "sourceColumn": "subcategory",
+            "sourceProviderType": "Char"
+          },
+          {
+            "name": "unit_price",
+            "dataType": "double",
+            "sourceColumn": "unit_price",
+            "sourceProviderType": "Numeric"
+          },
+          {
+            "name": "weight_kg",
+            "dataType": "double",
+            "sourceColumn": "weight_kg",
+            "sourceProviderType": "Numeric"
+          },
+          {
+            "name": "is_active",
+            "dataType": "int64",
+            "sourceColumn": "is_active",
+            "sourceProviderType": "UnsignedTinyInt"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "products",
+            "dataView": "full",
+            "source": {
+              "type": "query",
+              "query": " \t\t\t\tSELECT [dim].[products].*   FROM [dim].[products] ",
+              "dataSource": "SqlServer DESKTOP-979JVN0ERIKASERVER SouthAsiaMart_DW"
+            }
+          }
+        ],
+        "measures": [
+          {
+            "name": "Active Products",
+            "expression": [
+              "",
+              "CALCULATE(",
+              "    DISTINCTCOUNT(products[product_id]),",
+              "    products[is_active] = 1",
+              ")"
+            ]
+          },
+          {
+            "name": "Inactive Products",
+            "expression": [
+              "",
+              "CALCULATE(",
+              "    DISTINCTCOUNT(products[product_id]),",
+              "    products[is_active] = 0",
+              ")"
+            ]
+          }
+        ],
+        "hierarchies": [
+          {
+            "name": "Product Hierarchy",
+            "levels": [
+              {
+                "name": "category",
+                "ordinal": 0,
+                "column": "category"
+              },
+              {
+                "name": "subcategory",
+                "ordinal": 1,
+                "column": "subcategory"
+              },
+              {
+                "name": "product_name",
+                "ordinal": 2,
+                "column": "product_name"
+              }
+            ]
+          }
+        ],
+        "annotations": [
+          {
+            "name": "_TM_ExtProp_QueryDefinition",
+            "value": " \t\t\t\tSELECT [dim].[products].*   FROM [dim].[products] "
+          },
+          {
+            "name": "_TM_ExtProp_DbTableName",
+            "value": "products"
+          },
+          {
+            "name": "_TM_ExtProp_DbSchemaName",
+            "value": "dim"
+          }
+        ]
+      },
+      {
+        "name": "suppliers",
+        "columns": [
+          {
+            "name": "supplier_key",
+            "dataType": "int64",
+            "sourceColumn": "supplier_key",
+            "sourceProviderType": "Integer"
+          },
+          {
+            "name": "supplier_id",
+            "dataType": "string",
+            "sourceColumn": "supplier_id",
+            "sourceProviderType": "Char"
+          },
+          {
+            "name": "supplier_name",
+            "dataType": "string",
+            "sourceColumn": "supplier_name",
+            "sourceProviderType": "Char"
+          },
+          {
+            "name": "country",
+            "dataType": "string",
+            "sourceColumn": "country",
+            "sourceProviderType": "Char"
+          },
+          {
+            "name": "contact_email",
+            "dataType": "string",
+            "sourceColumn": "contact_email",
+            "sourceProviderType": "Char"
+          },
+          {
+            "name": "contract_start",
+            "dataType": "dateTime",
+            "sourceColumn": "contract_start",
+            "formatString": "General Date",
+            "sourceProviderType": "DBDate"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "suppliers",
+            "dataView": "full",
+            "source": {
+              "type": "query",
+              "query": " \t\t\t\tSELECT [dim].[suppliers].*   FROM [dim].[suppliers] ",
+              "dataSource": "SqlServer DESKTOP-979JVN0ERIKASERVER SouthAsiaMart_DW"
+            }
+          }
+        ],
+        "measures": [
+          {
+            "name": "Total Suppliers",
+            "expression": [
+              "",
+              "DISTINCTCOUNT(suppliers[supplier_id])"
+            ]
+          },
+          {
+            "name": "Avg Review Score by Supplier",
+            "expression": [
+              "",
+              "AVERAGE(order_items[review_score])"
+            ]
+          }
+        ],
+        "annotations": [
+          {
+            "name": "_TM_ExtProp_QueryDefinition",
+            "value": " \t\t\t\tSELECT [dim].[suppliers].*   FROM [dim].[suppliers] "
+          },
+          {
+            "name": "_TM_ExtProp_DbTableName",
+            "value": "suppliers"
+          },
+          {
+            "name": "_TM_ExtProp_DbSchemaName",
+            "value": "dim"
+          }
+        ]
+      },
+      {
+        "name": "order_items",
+        "columns": [
+          {
+            "name": "order_item_id",
+            "dataType": "string",
+            "sourceColumn": "order_item_id",
+            "sourceProviderType": "Char"
+          },
+          {
+            "name": "customer_key",
+            "dataType": "int64",
+            "sourceColumn": "customer_key",
+            "sourceProviderType": "Integer"
+          },
+          {
+            "name": "product_key",
+            "dataType": "int64",
+            "sourceColumn": "product_key",
+            "sourceProviderType": "Integer"
+          },
+          {
+            "name": "supplier_key",
+            "dataType": "int64",
+            "sourceColumn": "supplier_key",
+            "sourceProviderType": "Integer"
+          },
+          {
+            "name": "order_details_key",
+            "dataType": "int64",
+            "sourceColumn": "order_details_key",
+            "sourceProviderType": "Integer"
+          },
+          {
+            "name": "date_id",
+            "dataType": "int64",
+            "sourceColumn": "date_id",
+            "sourceProviderType": "Integer"
+          },
+          {
+            "name": "discount_pct",
+            "dataType": "double",
+            "sourceColumn": "discount_pct",
+            "sourceProviderType": "Numeric"
+          },
+          {
+            "name": "quantity",
+            "dataType": "int64",
+            "sourceColumn": "quantity",
+            "sourceProviderType": "UnsignedTinyInt"
+          },
+          {
+            "name": "unit_price_at_sale",
+            "dataType": "double",
+            "sourceColumn": "unit_price_at_sale",
+            "sourceProviderType": "Numeric"
+          },
+          {
+            "name": "line_total",
+            "dataType": "double",
+            "sourceColumn": "line_total",
+            "sourceProviderType": "Numeric"
+          },
+          {
+            "name": "review_score",
+            "dataType": "int64",
+            "sourceColumn": "review_score",
+            "sourceProviderType": "SmallInt"
+          },
+          {
+            "name": "review_length_chars",
+            "dataType": "int64",
+            "sourceColumn": "review_length_chars",
+            "sourceProviderType": "SmallInt"
+          },
+          {
+            "name": "order_id",
+            "dataType": "string",
+            "sourceColumn": "order_id",
+            "sourceProviderType": "Char"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "order_items",
+            "dataView": "full",
+            "source": {
+              "type": "query",
+              "query": " \t\t\t\tSELECT [fact].[order_items].*   FROM [fact].[order_items] ",
+              "dataSource": "SqlServer DESKTOP-979JVN0ERIKASERVER SouthAsiaMart_DW"
+            }
+          }
+        ],
+        "measures": [
+          {
+            "name": "Total Revenue",
+            "expression": " SUM(order_items[line_total])",
+            "formatString": "\"₹\" #,0.00;-\"₹\" #,0.00;\"₹\" #,0.00",
+            "annotations": [
+              {
+                "name": "Format",
+                "value": "<Format Format=\"Currency\" Accuracy=\"2\"><Currency LCID=\"2145\" DisplayName=\"₹ Nepali (India)\" Symbol=\"₹\" PositivePattern=\"2\" NegativePattern=\"9\" /></Format>"
+              }
+            ]
+          },
+          {
+            "name": "MOM% Revenue",
+            "expression": [
+              "",
+              "VAR CurrentVal = [Total Revenue]",
+              "VAR CurrentMonth = MAX('dates'[month_number])",
+              "VAR CurrentYear = MAX('dates'[year])",
+              "VAR PrevMonth = IF(CurrentMonth = 1, 12, CurrentMonth - 1)",
+              "VAR PrevYear = IF(CurrentMonth = 1, CurrentYear - 1, CurrentYear)",
+              "VAR PrevVal =",
+              "    CALCULATE(",
+              "        [Total Revenue],",
+              "        FILTER(",
+              "            ALL('dates'),",
+              "            'dates'[month_number] = PrevMonth",
+              "                && 'dates'[year] = PrevYear",
+              "        )",
+              "    )",
+              "VAR Result = DIVIDE(CurrentVal - PrevVal, PrevVal, BLANK())",
+              "RETURN",
+              "    IF(",
+              "        CurrentVal = 0 && PrevVal = 0,",
+              "        BLANK(),",
+              "        Result",
+              "    )"
+            ],
+            "formatString": "0.00%;-0.00%;0.00%"
+          },
+          {
+            "name": "CF MOM Revenue",
+            "expression": [
+              " ",
+              "SWITCH(",
+              "    TRUE(),",
+              "    [MOM% Revenue] > 0, \"Green\",",
+              "    [MOM% Revenue] < 0, \"Red\",",
+              "    \"Grey\"",
+              ")"
+            ]
+          },
+          {
+            "name": "Total Orders",
+            "expression": [
+              "",
+              "DISTINCTCOUNT(order_items[order_id])"
+            ]
+          },
+          {
+            "name": "Total Discount",
+            "expression": [
+              "",
+              "SUMX(",
+              "    FILTER(order_items, order_items[discount_pct] <> 0),",
+              "    order_items[discount_pct] * order_items[line_total]",
+              ")"
+            ],
+            "formatString": "\"₹\" #,0.00;-\"₹\" #,0.00;\"₹\" #,0.00",
+            "annotations": [
+              {
+                "name": "Format",
+                "value": "<Format Format=\"Currency\" Accuracy=\"2\"><Currency LCID=\"2145\" DisplayName=\"₹ Nepali (India)\" Symbol=\"₹\" PositivePattern=\"2\" NegativePattern=\"9\" /></Format>"
+              }
+            ]
+          },
+          {
+            "name": "Average Order Value",
+            "expression": [
+              " ",
+              "DIVIDE([Total Revenue], [Total Orders], 0)"
+            ],
+            "formatString": "\"₹\" #,0.00;-\"₹\" #,0.00;\"₹\" #,0.00",
+            "annotations": [
+              {
+                "name": "Format",
+                "value": "<Format Format=\"Currency\" Accuracy=\"2\"><Currency LCID=\"2145\" DisplayName=\"₹ Nepali (India)\" Symbol=\"₹\" PositivePattern=\"2\" NegativePattern=\"9\" /></Format>"
+              }
+            ]
+          },
+          {
+            "name": "MOM% Discount",
+            "expression": [
+              "",
+              "VAR CurrentVal = [Total Discount]",
+              "VAR CurrentMonth = MAX('dates'[month_number])",
+              "VAR CurrentYear = MAX('dates'[year])",
+              "VAR PrevMonth = IF(CurrentMonth = 1, 12, CurrentMonth - 1)",
+              "VAR PrevYear = IF(CurrentMonth = 1, CurrentYear - 1, CurrentYear)",
+              "VAR PrevVal =",
+              "    CALCULATE(",
+              "        [Total Discount],",
+              "        FILTER(",
+              "            ALL('dates'),",
+              "            'dates'[month_number] = PrevMonth",
+              "                && 'dates'[year] = PrevYear",
+              "        )",
+              "    )",
+              "VAR Result = DIVIDE(CurrentVal - PrevVal, PrevVal, BLANK())",
+              "RETURN",
+              "    IF(",
+              "        CurrentVal = 0 && PrevVal = 0,",
+              "        BLANK(),",
+              "        Result",
+              "    )"
+            ],
+            "formatString": "0.00%;-0.00%;0.00%"
+          },
+          {
+            "name": "MOM% Orders",
+            "expression": [
+              "",
+              "VAR CurrentVal = [Total Orders]",
+              "VAR CurrentMonth = MAX('dates'[month_number])",
+              "VAR CurrentYear = MAX('dates'[year])",
+              "VAR PrevMonth = IF(CurrentMonth = 1, 12, CurrentMonth - 1)",
+              "VAR PrevYear = IF(CurrentMonth = 1, CurrentYear - 1, CurrentYear)",
+              "VAR PrevVal =",
+              "    CALCULATE(",
+              "        [Total Orders],",
+              "        FILTER(",
+              "            ALL('dates'),",
+              "            'dates'[month_number] = PrevMonth",
+              "                && 'dates'[year] = PrevYear",
+              "        )",
+              "    )",
+              "VAR Result = DIVIDE(CurrentVal - PrevVal, PrevVal, BLANK())",
+              "RETURN",
+              "    IF(",
+              "        CurrentVal = 0 && PrevVal = 0,",
+              "        BLANK(),",
+              "        Result",
+              "    )"
+            ],
+            "formatString": "0.00%;-0.00%;0.00%"
+          },
+          {
+            "name": "MOM% AOV",
+            "expression": [
+              "",
+              "VAR CurrentVal = [Average Order Value]",
+              "VAR CurrentMonth = MAX('dates'[month_number])",
+              "VAR CurrentYear = MAX('dates'[year])",
+              "VAR PrevMonth = IF(CurrentMonth = 1, 12, CurrentMonth - 1)",
+              "VAR PrevYear = IF(CurrentMonth = 1, CurrentYear - 1, CurrentYear)",
+              "VAR PrevVal =",
+              "    CALCULATE(",
+              "        [Average Order Value],",
+              "        FILTER(",
+              "            ALL('dates'),",
+              "            'dates'[month_number] = PrevMonth",
+              "                && 'dates'[year] = PrevYear",
+              "        )",
+              "    )",
+              "VAR Result = DIVIDE(CurrentVal - PrevVal, PrevVal, BLANK())",
+              "RETURN",
+              "    IF(",
+              "        CurrentVal = 0 && PrevVal = 0,",
+              "        BLANK(),",
+              "        Result",
+              "    )"
+            ],
+            "formatString": "0.00%;-0.00%;0.00%"
+          },
+          {
+            "name": "CF MOM Discount",
+            "expression": [
+              " ",
+              "SWITCH(",
+              "    TRUE(),",
+              "    [MOM% Discount] > 0, \"Red\",",
+              "    [MOM% Discount] < 0, \"Green\",",
+              "    \"Grey\"",
+              ")"
+            ]
+          },
+          {
+            "name": "CF MOM Orders",
+            "expression": [
+              " ",
+              "SWITCH(",
+              "    TRUE(),",
+              "    [MOM% Orders] > 0, \"Green\",",
+              "    [MOM% Orders] < 0, \"Red\",",
+              "    \"Grey\"",
+              ")"
+            ]
+          },
+          {
+            "name": "CF MOM AOV",
+            "expression": [
+              " ",
+              "SWITCH(",
+              "    TRUE(),",
+              "    [MOM% AOV] > 0, \"Green\",",
+              "    [MOM% AOV] < 0, \"Red\",",
+              "    \"Grey\"",
+              ")"
+            ]
+          },
+          {
+            "name": "Avg Review Score",
+            "expression": " AVERAGE(order_items[review_score])"
+          },
+          {
+            "name": "Order Status %",
+            "expression": [
+              "",
+              "DIVIDE(",
+              "    [Total Orders],",
+              "    CALCULATE([Total Orders], ALL(order_details[order_status]))",
+              ") * 100"
+            ]
+          },
+          {
+            "name": "Payment Method %",
+            "expression": [
+              "",
+              "DIVIDE(",
+              "    [Total Revenue],",
+              "    CALCULATE([Total Revenue], ALL(order_details[payment_method]))",
+              ") * 100"
+            ]
+          },
+          {
+            "name": "Inactive Customers",
+            "expression": [
+              "",
+              "CALCULATE(",
+              "    DISTINCTCOUNT(customers[customer_key]),",
+              "    FILTER(",
+              "        customers,",
+              "        CALCULATE(COUNTROWS(order_items)) = 0",
+              "    )",
+              ")"
+            ]
+          },
+          {
+            "name": "Active Customers",
+            "expression": [
+              "",
+              "CALCULATE(",
+              "    DISTINCTCOUNT(customers[customer_key]),",
+              "    FILTER(",
+              "        customers,",
+              "        CALCULATE(COUNTROWS(order_items)) > 0",
+              "    )",
+              ")"
+            ]
+          }
+        ],
+        "annotations": [
+          {
+            "name": "_TM_ExtProp_QueryDefinition",
+            "value": " \t\t\t\tSELECT [fact].[order_items].*   FROM [fact].[order_items] "
+          },
+          {
+            "name": "_TM_ExtProp_DbTableName",
+            "value": "order_items"
+          },
+          {
+            "name": "_TM_ExtProp_DbSchemaName",
+            "value": "fact"
+          }
+        ]
+      }
+    ],
+    "relationships": [
+      {
+        "name": "b660f59a-7273-4b5b-9b12-636767cd60fd",
+        "fromTable": "order_items",
+        "fromColumn": "customer_key",
+        "toTable": "customers",
+        "toColumn": "customer_key"
+      },
+      {
+        "name": "5ca6ad2d-7fc9-464d-a148-9d60839334e3",
+        "fromTable": "order_items",
+        "fromColumn": "date_id",
+        "toTable": "dates",
+        "toColumn": "date_id"
+      },
+      {
+        "name": "bb4ea0ad-4bec-4b8e-be75-d0419bf835ce",
+        "fromTable": "order_items",
+        "fromColumn": "order_details_key",
+        "toTable": "order_details",
+        "toColumn": "order_details_key"
+      },
+      {
+        "name": "2c702c45-bd15-45f3-ae90-1dd2c1cc3137",
+        "fromTable": "order_items",
+        "fromColumn": "product_key",
+        "toTable": "products",
+        "toColumn": "product_key"
+      },
+      {
+        "name": "9576dc37-0a7b-44cc-8794-e0d6b1f0d2de",
+        "fromTable": "order_items",
+        "fromColumn": "supplier_key",
+        "toTable": "suppliers",
+        "toColumn": "supplier_key"
+      }
+    ],
+    "annotations": [
+      {
+        "name": "ClientCompatibilityLevel",
+        "value": "400"
+      }
+    ]
+  },
+  "id": "SemanticModel"
+}

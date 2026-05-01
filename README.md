@@ -25,7 +25,7 @@ This project delivers end-to-end analytics for **The Asian Mart**, a retail busi
 ---
 
 ## Architecture
-
+![Architecture](Docs/architecture.png)
 
 ## Dashboard Pages
 

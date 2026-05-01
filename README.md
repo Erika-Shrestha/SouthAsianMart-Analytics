@@ -1,4 +1,4 @@
-# The South Asian Mart — Analytics Dashboard
+# The South Asian Mart Analytics Dashboard
 
 > A full-stack business intelligence solution for retail analytics, built with Microsoft's SQL Server ecosystem and Power BI.
 
